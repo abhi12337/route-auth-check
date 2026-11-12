@@ -34,6 +34,7 @@ code, never imports it and makes no network requests. CI-friendly exit codes.
 ## Quick start
 
 ```bash
+pipx install git+https://github.com/abhi12337/route-auth-check   # straight from GitHub
 pipx install .                              # from a clone of this repo (or: pip install .)
 
 route-auth-check scan                       # current folder
