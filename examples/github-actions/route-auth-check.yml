@@ -1,0 +1,34 @@
+# Copy to .github/workflows/route-auth-check.yml in a repo with an API (Next.js, Express, Hono,
+# Fastify, FastAPI, Flask, Django).
+# Static only: it reads the checked-out files and never runs your code or sends a request.
+name: route-auth-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  route-auth-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Pin to a release tag or commit of route-auth-check you have reviewed.
+      - run: pipx install "git+https://github.com/OWNER/route-auth-check@v0.1.0"
+      - name: Check API routes for missing auth (fails on high)
+        # add --auth-fn NAME for your own auth helpers
+        run: route-auth-check scan . --no-color --fail-on high
+      - name: JSON report artifact
+        if: always()
+        run: route-auth-check scan . --json --fail-on never > route-auth-check.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: route-auth-check-report
+          path: route-auth-check.json
