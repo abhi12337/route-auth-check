@@ -37,6 +37,15 @@ class ScanResult:
     findings: list[Finding] = field(default_factory=list)
     routes: list[Route] = field(default_factory=list)
     files_scanned: int = 0
+    skipped: list[dict] = field(default_factory=list)   # [{"path": ..., "reason": "syntax error line 3"}]
+
+
+def parse_failure(exc: BaseException) -> str:
+    if isinstance(exc, SyntaxError):
+        return f"syntax error line {exc.lineno}" if exc.lineno else "syntax error"
+    if isinstance(exc, RecursionError):
+        return "too deeply nested to parse"
+    return f"could not be parsed ({exc})"
 
 
 def _is_test_file(name: str) -> bool:
@@ -107,7 +116,8 @@ def scan_path(target: str, *, excludes: list[str] | None = None, include_tests: 
         if suffix in PY_EXT:
             try:
                 tree = ast.parse(text)
-            except (SyntaxError, ValueError):
+            except (SyntaxError, ValueError, RecursionError) as e:
+                res.skipped.append({"path": rel, "reason": parse_failure(e)})   # reported, never silently clean
                 continue
             pf = py_scan.PyFile(rel, text, tree)
             py_scan.discover(pf, extra, pyfacts)

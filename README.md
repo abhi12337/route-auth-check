@@ -66,7 +66,7 @@ test fixtures in this repository (nothing is hand-edited).
 (a Server Actions file and an Express server):
 
 ```text
-route-auth-check 0.1.0
+route-auth-check 0.1.1
 Scanned demo-routes/web/app/actions/comments.ts, demo-routes/web/server/express.ts
 2 source file(s), 7 route(s) (Express 4, Server Actions 3)
 auth: 4 protected, 1 public, 2 unprotected, 0 unknown
@@ -146,7 +146,7 @@ A full finding (without `--brief`): the fix is written for the data layer (Prism
 framework (Next.js App Router), with the route's own variable names:
 
 ```text
-route-auth-check 0.1.0
+route-auth-check 0.1.1
 Scanned demo-routes/web/app/api/posts/[id]/route.ts
 1 source file(s), 2 route(s) (Next.js App Router 2)
 auth: 2 protected, 0 public, 0 unprotected, 0 unknown
@@ -195,7 +195,7 @@ Exit code: 1
 <summary>The whole demo project: <code>route-auth-check scan demo-routes --brief</code></summary>
 
 ```text
-route-auth-check 0.1.0
+route-auth-check 0.1.1
 Scanned demo-routes
 15 source file(s), 27 route(s) (Express 6, Next.js App Router 6, FastAPI 3, Flask 3, Server Actions 3, DRF 2, Django 2, Fastify 1, Hono 1)
 auth: 14 protected, 4 public, 9 unprotected, 0 unknown
@@ -472,7 +472,7 @@ The same routes written correctly (`tests/fixtures/node_clean`, `tests/fixtures/
 produce no findings, and every route is classified:
 
 ```text
-route-auth-check 0.1.0
+route-auth-check 0.1.1
 Scanned tests/fixtures/node_clean, tests/fixtures/py_clean
 20 source file(s), 37 route(s) (Next.js App Router 10, Express 8, FastAPI 5, Flask 4, Server Actions 3, DRF 2, Django 2, Fastify 2, Hono 1)
 auth: 28 protected, 9 public, 0 unprotected, 0 unknown
@@ -664,7 +664,7 @@ an artifact.
 ```json
 {
   "tool": "route-auth-check",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "targets": [
     "/abs/path/demo-routes"
   ],
@@ -695,6 +695,7 @@ an artifact.
       "status": "protected"
     }
   ],
+  "skipped": [],
   "exit_code": 1,
   "summary": {
     "critical": 0,
@@ -739,6 +740,11 @@ an artifact.
 
 `status` is `protected`, `public` (public by design, or a read-only route), `unprotected`, or
 `unknown` (behind middleware or code the tool cannot see into).
+
+`"skipped"` lists Python files that could not be parsed (`{"path": ..., "reason": "syntax error
+line 12"}`). Such files are never treated as clean: each is also reported on stderr
+(`warning: api/views.py: syntax error line 12; file not scanned`) and counted in the text
+header. They do not change the exit code.
 
 ## Development
 

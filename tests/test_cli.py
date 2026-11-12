@@ -159,3 +159,13 @@ def test_demo_project(tmp_path):
                    capture_output=True)
     assert (demo / "web" / "middleware.ts").exists() and (demo / "api" / "fastapi_app.py").exists()
     assert main(["scan", str(demo), "--fail-on", "never"]) == 0
+
+
+def test_unparseable_python_file_is_warned_not_silently_clean(capsys, tmp_path):
+    (tmp_path / "views.py").write_text('@app.post("/admin/delete")\ndef delete():\n    x = = 1\n')
+    code, out, err = run(capsys, "scan", str(tmp_path), "--no-color")
+    assert code == 0                                  # exit code still depends on findings only
+    assert "warning: views.py: syntax error line 3; file not scanned" in err
+    assert "1 file(s) could not be parsed" in out
+    code, out, _ = run(capsys, "scan", str(tmp_path), "--json")
+    assert json.loads(out)["skipped"] == [{"path": "views.py", "reason": "syntax error line 3"}]

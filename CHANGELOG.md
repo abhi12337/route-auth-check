@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-11-12
+
+### Fixed
+
+- A Python file with a syntax error was skipped silently, so its routes were never checked and
+  nothing said so. It is now reported: a `warning: <path>: syntax error line N; file not scanned`
+  line on stderr, a count in the text header and a `"skipped": [{"path": ..., "reason": ...}]`
+  list in the JSON report. Exit codes are unchanged.
+
 ## [0.1.0] - 2026-11-11
 
 First release.
